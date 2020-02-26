@@ -1,0 +1,46 @@
+class TitleScene extends Phaser.Scene {
+  constructor(test) {
+    super({
+        key: 'TitleScene'
+    });
+    
+  }
+  create() {
+
+    let config = {
+      key: 'title',
+      frames: [{
+          frame: 'title',
+      }]
+    };
+
+    this.title = this.add.sprite(
+      this.scene.systems.game.config.width/2,
+      60,
+      'title'
+    );
+    this.title.setOrigin(0.5,0.5);
+    this.title.setInteractive();
+
+    this.buttonStart = this.add.sprite(
+      this.scene.systems.game.config.width/2,
+      140,
+      'btn_start'
+    );
+    this.buttonStart.setOrigin(0.5,0.5);
+    this.buttonStart.setInteractive();
+
+    this.buttonStart.on('pointerdown', () => {
+      this.startGame();
+    });  
+
+
+    this.registry.set('score', "0");
+
+  }
+  startGame() {
+    this.scene.start('GameScene');
+  }
+}
+
+export default TitleScene;
