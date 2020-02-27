@@ -25,26 +25,59 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
       'GAME OVER',
       30
     );
+
+    this.scoreTxt = this.scene.add.bitmapText(
+      30,
+      90,
+      'bitmapFont',
+      '',
+      30
+    );
+
+    this.coinTxt = this.scene.add.bitmapText(
+      30,
+      100,
+      'bitmapFont',
+      "",
+      30
+    );
+
+    this.totalTxt = this.scene.add.bitmapText(
+      30,
+      110,
+      'bitmapFont',
+      '',
+      30
+    );   
+    this.myScoreTxt = this.scene.add.bitmapText(
+      30,
+      120,
+      'bitmapFont',
+      '',
+      30
+    );     
+
     this.stageOverTxt.setOrigin(0.5,0.5);
     config.scene.physics.world.enable(this.stageOverTxt);
     config.scene.add.existing(this.stageOverTxt);
     this.stageOverTxt.setScrollFactor(0);
 
-    this.buttonContinue = config.scene.add.sprite(
+
+    this.buttonTw = config.scene.add.sprite(
       config.scene.game.config.width/2,
-      140,
-      'button_continue'
+      200,
+      'btn_tw'
     );
-    this.buttonContinue.setScrollFactor(0);
-    this.buttonContinue.setOrigin(0.5,0.5);
-    this.buttonContinue.setInteractive();
-    config.scene.physics.world.enable(this.buttonContinue);
-    config.scene.add.existing(this.buttonContinue);
+    this.buttonTw.setScrollFactor(0);
+    this.buttonTw.setOrigin(0.5,0.5);
+    this.buttonTw.setInteractive();
+    config.scene.physics.world.enable(this.buttonTw);
+    config.scene.add.existing(this.buttonTw);
 
     this.buttonTitle = config.scene.add.sprite(
       config.scene.game.config.width/2,
-      200,
-      'button_title'
+      260,
+      'title'
     );
     this.buttonTitle.setScrollFactor(0);
     this.buttonTitle.setOrigin(0.5,0.5);
@@ -55,22 +88,51 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
     this.container.add([
       this.overlapArea,
       this.stageOverTxt,
-      this.buttonContinue,
-      this.buttonTitle
+      this.buttonTw,
+      this.buttonTitle,
+      this.scoreTxt,
+      this.coinTxt,
+      this.totalTxt,
+      this.myScoreTxt
     ]);
     
     this.container.visible = false;
 
-    this.buttonContinue.on('pointerdown', () => {
-      this.scene.refleshGame();
-    });
     this.buttonTitle.on('pointerdown', () => {
       this.scene.titleGame();
     });
-
+    this.buttonTw.on('pointerdown', () => {
+      alert("tw")
+    });
   }
 
-  gameOverDisplay(){
+  scoreDisplay(){
     this.container.visible = true;
+    let getScore = this.scene.registry.list.score;
+    let coinCount = this.scene.registry.list.coin;
+    let COIN_POINT = 100;
+    let cointScore = coinCount * COIN_POINT;
+    let totalScore = getScore + cointScore;
+    let myScore = totalScore + this.scene.MY_SCORE;
+
+    this.scoreTxt.setText(
+      'SCORE:' + getScore
+    );
+    this.coinTxt.setText(
+      'COIN:' + coinCount + ' x' + COIN_POINT + ' = ' + cointScore
+    );    
+    this.totalTxt.setText(
+      'TOTAL:' + totalScore
+    );  
+    this.myScoreTxt.setText(
+      'MY SCORE:' + myScore
+    );
+
+    //トータルスコアの更新
+    // this.scene.registry.list.myScore = myScore;
+    nowMyScore = myScore
+    //一日一回のフラグ更新
+    // this.scene.registry.list.playedFlg = true;
+    playedFlg = true;
   }
 }

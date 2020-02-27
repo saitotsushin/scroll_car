@@ -1,22 +1,26 @@
-export default class Base extends Phaser.Physics.Arcade.Sprite {
+export default class Stone extends Phaser.GameObjects.TileSprite {
   constructor(config) {
     super(
       config.scene,
       config.x,
       config.y,
+      config.width,
+      config.height,
       config.key,
       config.frame
     );
 
-    this.x = 0;
-    this.y = 0;
+    this.x = config.x;
+    this.y = config.y;
+    this.width = config.width;
+    this.height = config.height;
     config.scene.physics.world.enable(this);
     config.scene.add.existing(this);
 
-    this.active = false;
-    this.visible = false;
-    this.setActive(false);
-    this.setVisible(false);
+    // this.active = false;
+    // this.visible = false;
+    // this.setActive(false);
+    // this.setVisible(false);
 
 
     // this.depth = 1;

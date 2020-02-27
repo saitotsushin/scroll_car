@@ -51,9 +51,16 @@ class BootScene extends Phaser.Scene {
     this.load.image('pylon', 'assets/images/pylon.png');
     this.load.image('stage', 'assets/images/stage.jpg');
     this.load.image('title', 'assets/images/title.png');
+
+    this.load.image('attention', 'assets/images/attention.png');
+    this.load.image('stone', 'assets/images/stone.png');
+
     this.load.image('btn_start', 'assets/images/btn_start.png');
     this.load.image('btn_tutorial', 'assets/images/btn_tutorial.png');
-
+    this.load.image('btn_continue', 'assets/images/btn_continue.png');
+    this.load.image('btn_tw', 'assets/images/btn_tw.png');
+    this.load.bitmapFont('bitmapFont', 'assets/font/font.png', 'assets/font/font.xml');
+    this.load.bitmapFont('bitmapFontYellow', 'assets/font/font_yellow.png', 'assets/font/font.xml');
   }
 
 }

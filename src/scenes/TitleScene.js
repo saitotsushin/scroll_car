@@ -34,8 +34,27 @@ class TitleScene extends Phaser.Scene {
       this.startGame();
     });  
 
+    /*==============================
+    UI
+    ==============================*/     
+    this.myScoreText = this.add.text(
+      20,
+      240,
+      'MY SCORE: ' + nowMyScore,
+      {
+        font: '18px Courier',
+        fill: '#FFFFFF'
+      }
+    );
 
-    this.registry.set('score', "0");
+    this.registry.set('score', 0);
+    this.registry.set('coin', 0);
+    this.registry.set('myScore', nowMyScore);
+    this.registry.set('playedFlg', playedFlg);
+
+    if(this.registry.list.playedFlg === true){
+      this.buttonStart.visible = false;      
+    }
 
   }
   startGame() {

@@ -5,13 +5,13 @@ export default class Coin extends Item {
     super(config);
     this.coinPoint = 1;
 
-
   }
 
   hit(){
-    this.scene.coin_count = this.scene.coin_count + this.coinPoint;
-
-    this.scene.player.status.power += this.coinPoint;
-    this.destroy();
+    if(this.active && this.visible){
+      this.scene.registry.list.coin += this.coinPoint;
+      this.setActive(false);
+      this.setVisible(false);
+    }
   }
 }
