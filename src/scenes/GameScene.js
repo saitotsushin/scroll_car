@@ -5,12 +5,15 @@ import Stone from '../sprites/Crimp/Stone';
 import Coin from '../sprites/item/Coin';
 import GameOver from '../helper/GameOver';
 
+import CoinCount from '../ui/CoinCount';
+
 class GameScene extends Phaser.Scene {
   constructor(test) {
     super({
       key: 'GameScene'
     });
     this.SCROLL_SPEED = 5;
+    this.gameStartFlg = false;
     this.crimpTimerEvent;
     this.attentionBlockTimerEvent;
     this.MY_SCORE = nowMyScore;
@@ -52,20 +55,13 @@ class GameScene extends Phaser.Scene {
     );
     this.scoreText.depth = 100;
     /*==============================
-    UI
+    UI コイン
     ==============================*/     
-    this.coinText = this.add.text(
-      this.game.config.width - 10,
-      20,
-      '0',
-      {
-        font: '18px Courier',
-        fill: '#FFFFFF',
-        align: 'right'
-      }
-    );
-    this.coinText.setOrigin(1, 0);
-    this.coinText.depth = 100;
+    this.CoinCount = new CoinCount({
+      scene: this
+    });
+
+
     /*==============================
     UI レベル
     ==============================*/
@@ -127,6 +123,7 @@ class GameScene extends Phaser.Scene {
       x: 64,
       y: this.game.config.height - 60,
     });
+    
     /*==============================
     障害物グループ生成（アテンション）
     ==============================*/  
@@ -143,48 +140,44 @@ class GameScene extends Phaser.Scene {
       width: 37,
       height: 200,
       key: 'stone'
-    });  
-    console.log("this.Stone",this.Stone)
+    });
+    this.Stone.setVisible(false);
 
-    // this.Stone = this.add.tileSprite(
-    //   12,//x
-    //   this.game.config.height/2,
-    //   // this.game.config.height*-1,//y
-    //   37,
-    //   this.game.config.height,
-    //   'stone'
-    // ); 
-    this.Stone.setVisible(false)
+    this.LANE_NUMBER = 1;
+
+    this.BASE_SPEED = 5;
+    this.MAX_SPEED = 15;
+    this.ADD_SPEED = 0.005;
 
     this.STAGE_STATUS = [
       {
         LEVEL: 1,
         SCORE: 0,
-        SPEED: 5,
+        SPEED: this.BASE_SPEED,
         DURATION: 1000,
         DELAY: 1000
+      },
+      {
+        LEVEL: 2,
+        SCORE: 2000,
+        SPEED: (this.BASE_SPEED + this.MAX_SPEED) /4 * 2,
+        DURATION: 500,
+        DELAY: 500
+      },
+      {
+        LEVEL: 3,
+        SCORE: 4000,
+        SPEED: (this.BASE_SPEED + this.MAX_SPEED) /4 * 3,
+        DURATION: 400,
+        DELAY: 400
+      },
+      {
+        LEVEL: 4,
+        SCORE: 6000,
+        SPEED: this.MAX_SPEED,
+        DURATION: 300,
+        DELAY: 300
       }
-      // {
-      //   LEVEL: 2,
-      //   SCORE: 2000,
-      //   SPEED: 10,
-      //   DURATION: 500,
-      //   DELAY: 500
-      // },
-      // {
-      //   LEVEL: 3,
-      //   SCORE: 4000,
-      //   SPEED: 12,
-      //   DURATION: 400,
-      //   DELAY: 400
-      // },
-      // {
-      //   LEVEL: 4,
-      //   SCORE: 6000,
-      //   SPEED: 14,
-      //   DURATION: 300,
-      //   DELAY: 300
-      // }
     ];
 
 
@@ -195,6 +188,9 @@ class GameScene extends Phaser.Scene {
     this.keyDirection = "LEFT";
 
     this.input.on('pointerdown', function (pointer) {
+      if(this.gameOverFlg){
+        return;
+      }
       if(!this.isTouched){
         this.isTouched = true;
         if( pointer.x < this.game.config.width/2){
@@ -212,6 +208,9 @@ class GameScene extends Phaser.Scene {
     }, this);
 
     this.input.on('pointerup', function (pointer) {
+      if(this.gameOverFlg){
+        return;
+      }
       if(this.isTouched){
         this.isTouched = false;
       }
@@ -220,48 +219,103 @@ class GameScene extends Phaser.Scene {
     当たり判定
     ==============================*/   
     this.physics.add.overlap(this.Car,this.CrimpGroup,function(car,crimp){
-      car.hit();
+      car.hit(crimp);
     });
     this.physics.add.overlap(this.Car,this.CoinGroup,function(car,coin){
       coin.hit();
     });
     this.physics.add.overlap(this.Car,this.Stone,function(car,stone){
-      car.hit();
+      car.hit(stone);
     });
     /*==============================
     ゲームオーバー
     ==============================*/   
     this.gameOverFlg = false;
-    /*==============================
-    タイマー
-    ==============================*/   
-    this.attentionBlockTimerEvent = this.time.addEvent({
-      delay: 2000,
-      duration: 1000,
-      startAt: 200,
-      callback: function(){
-        this.attentionDisplay();
-      },
+
+    this.stageNowText = this.add.bitmapText(
+      this.game.config.width/2 - 20,
+      100,
+      'bitmapFont',
+      'GAME START',
+      64
+    );
+    this.stageNowText.setOrigin(0.5,0.5);
+    this.stageNowText.alpha = 0;
+    var stageNumberTween = this.tweens.timeline({
+      targets: this.stageNowText,
+      ease: 'liner',
+      duration: 100,
+      tweens:[{
+        x: this.game.config.width/2,
+        alpha: 1,
+        duration: 300
+      },{
+        duration: 1000
+      },{
+        x: this.game.config.width/2 + 20,
+        alpha: 0,
+        duration: 300
+      }
+      ],
+      delay: 500,
+      repeat: 0,
+      completeDelay: 400,
       callbackScope: this,
-      loop: true
-    }); 
-    this.crimpTimerEvent = this.time.addEvent({
-      delay: 1000,
-      duration: 1000,
-      startAt: 200,
-      callback: function(){
-        this.fromCrimpPool();
-      },
-      callbackScope: this,
-      loop: true
-    }); 
+      onComplete: function () {
+        this.gameStartFlg = true;
+        this.stageNowText.setActive(false);
+        this.stageNowText.setVisible(false);
+      }
+    });    
+
   }
   update(time, delta) {
+
+    if(!this.gameStartFlg){
+      return;
+    }
 
     if(this.gameOverFlg){
       return;
     }
+    this.CoinCount.update();
+    //レーンのチェック
+    this.LANE_NUMBER = this.checkLane();
+    /*==============================
+    タイマー
+    ==============================*/   
+    if(!this.attentionBlockTimerEvent){
+      this.attentionBlockTimerEvent = this.time.addEvent({
+        delay: 2000,
+        duration: 1000,
+        startAt: 200,
+        callback: function(){
+          this.attentionDisplay();
+        },
+        callbackScope: this,
+        loop: true
+      });   
+    }
+    if(!this.crimpTimerEvent){
+      this.crimpTimerEvent = this.time.addEvent({
+        delay: 1000,
+        duration: 1000,
+        startAt: 200,
+        callback: function(){
+          this.fromCrimpPool();
+        },
+        callbackScope: this,
+        loop: true
+      }); 
+    }
+
     this.changeLevel();
+
+    if(this.SCROLL_SPEED <= this.MAX_SPEED){
+      this.SCROLL_SPEED += this.ADD_SPEED;
+    }else{
+      this.SCROLL_SPEED = this.MAX_SPEED;
+    }
 
     this.registry.list.score += this.SCROLL_SPEED;
 
@@ -269,14 +323,12 @@ class GameScene extends Phaser.Scene {
       'LEVEL :'+this.LEVEL
     );
     this.speedText.setText(
-      'SPEED :'+this.SCROLL_SPEED
+      'SPEED :'+Math.floor(this.SCROLL_SPEED)
     );
     this.scoreText.setText(
-      'SCORE :'+this.registry.list.score
+      'SCORE :'+Math.floor(this.registry.list.score)
     );
-    this.coinText.setText(
-      'COIN :'+this.registry.list.coin
-    );
+
     this.background1.tilePositionY -= this.SCROLL_SPEED;
 
     this.CrimpGroup.children.entries.forEach(
@@ -316,6 +368,7 @@ class GameScene extends Phaser.Scene {
       displayObject.setVisible(true);
       displayObject.x = randomLane * 60;
       displayObject.y = 0;
+      displayObject.laneNumber = randomLane;
     }
   }
   gameOver(){
@@ -323,8 +376,14 @@ class GameScene extends Phaser.Scene {
     this.crimpTimerEvent.remove(false);
     this.anims.resumeAll();
     this.physics.world.resume();
-
-    this.GameOver.scoreDisplay();
+    let gameOverDelay = this.time.delayedCall(
+      2000,
+      function(){
+        this.GameOver.scoreDisplay();
+      },
+      [],
+      this
+    );
   }
   getRandomInt(min, max) {
     return Math.floor( Math.random() * (max - min + 1) ) + min;
@@ -341,8 +400,8 @@ class GameScene extends Phaser.Scene {
 
     this.STAGE_STATUS.forEach(
       (status) => {
-        if(this.registry.list.score > status.SCORE){
-          this.SCROLL_SPEED = status.SPEED;
+        if(this.SCROLL_SPEED >= status.SPEED){
+          // this.SCROLL_SPEED = status.SPEED;
           afterLevel = status.LEVEL;
           afterDuration = status.DURATION;
           afterDelay = status.DELAY;
@@ -350,7 +409,6 @@ class GameScene extends Phaser.Scene {
       },this
     );
     if(afterLevel !== this.LEVEL){
-      console.log("afterDuration",afterDuration);
       this.LEVEL = afterLevel;
       this.levelText.setText(
         'LEVEL :'+this.LEVEL
@@ -370,23 +428,39 @@ class GameScene extends Phaser.Scene {
     }
 
   }
+  checkLane(){
+    let PADDING = 30;//左右の余白
+    let LOAD_WIDTH = this.game.config.width - PADDING*2;
+    let LANE_WIDTH = LOAD_WIDTH/4;
+    let lane_number = Math.floor((this.Car.x - PADDING)/LANE_WIDTH) + 1;
+    return lane_number;
+    // if(this.LANE_NUMBER);
+  }
   attentionDisplay(){
     if(this.Stone.active){
       return;
     }
     //3)ストーンは別で1/10確率で表示
     let setStoneId = this.getRandomInt(1,2);
-    let setLane = this.getRandomInt(1,4);
+    let setLane = this.getRandomInt(1,2);
     let stoneObject;
     if(setStoneId === 1){
       //マークの表示
-      this.AttentionMark.x = setLane * 60;
       this.AttentionMark.y = this.game.config.height/2;
       this.AttentionMark.setVisible(true);
       //ストーンの設置
       this.Stone.setVisible(true);
-      this.Stone.x = setLane * 60;
-      this.Stone.y = this.game.config.height/2 * -1;
+      if(setLane === 1){
+        this.AttentionMark.x = setLane * 60;
+        this.Stone.x = setLane * 60;
+      }
+      if(setLane === 2){
+        this.AttentionMark.x = setLane * 120;
+        this.Stone.x = setLane * 120;
+      }
+      this.Stone.y = this.game.config.height/2 * -1 - this.LEVEL*this.game.config.height;
+      this.Stone.body.setSize(30,this.game.config.height * this.LEVEL)
+      this.Stone.height = this.game.config.height * this.LEVEL;
       this.Stone.setActive(true);
       this.Stone.active = true;      
     }

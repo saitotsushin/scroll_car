@@ -18,6 +18,8 @@ export default class Base extends Phaser.Physics.Arcade.Sprite {
     this.setActive(false);
     this.setVisible(false);
 
+    this.laneNumber = 0;
+
 
     // this.depth = 1;
 

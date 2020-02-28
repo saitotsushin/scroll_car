@@ -51,6 +51,7 @@ class BootScene extends Phaser.Scene {
     this.load.image('pylon', 'assets/images/pylon.png');
     this.load.image('stage', 'assets/images/stage.jpg');
     this.load.image('title', 'assets/images/title.png');
+    this.load.image('base_score', 'assets/images/base_score.png');
 
     this.load.image('attention', 'assets/images/attention.png');
     this.load.image('stone', 'assets/images/stone.png');
@@ -58,9 +59,15 @@ class BootScene extends Phaser.Scene {
     this.load.image('btn_start', 'assets/images/btn_start.png');
     this.load.image('btn_tutorial', 'assets/images/btn_tutorial.png');
     this.load.image('btn_continue', 'assets/images/btn_continue.png');
+    this.load.image('btn_title', 'assets/images/btn_title.png');
     this.load.image('btn_tw', 'assets/images/btn_tw.png');
     this.load.bitmapFont('bitmapFont', 'assets/font/font.png', 'assets/font/font.xml');
     this.load.bitmapFont('bitmapFontYellow', 'assets/font/font_yellow.png', 'assets/font/font.xml');
+    this.load.spritesheet('top_anime', 'assets/images/top_anime.png', { frameWidth: 80, frameHeight: 56 });
+    this.load.spritesheet('car_anime', 'assets/images/car_anime.png', { frameWidth: 60, frameHeight: 60 });
+    this.load.spritesheet('coin_anime', 'assets/images/coin_anime.png', { frameWidth: 32, frameHeight: 32 });
+    this.load.spritesheet('coin_anime_s', 'assets/images/coin_anime_s.png', { frameWidth: 20, frameHeight: 20 });
+
   }
 
 }

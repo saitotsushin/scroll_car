@@ -32,9 +32,10 @@ export default class Stone extends Phaser.GameObjects.TileSprite {
     if(!this.active){
       return;
     }
-    if(this.y > this.scene.game.config.height){
+    if(this.y - this.height/2 > this.scene.game.config.height){
       this.setActive(false);
       this.setVisible(false);
+      this.scene.AttentionMark.setVisible(false);
       return;
     }
 

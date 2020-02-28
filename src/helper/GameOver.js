@@ -23,39 +23,94 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
       70,
       'bitmapFont',
       'GAME OVER',
-      30
+      70
     );
-
-    this.scoreTxt = this.scene.add.bitmapText(
-      30,
-      90,
-      'bitmapFont',
-      '',
-      30
-    );
-
-    this.coinTxt = this.scene.add.bitmapText(
-      30,
-      100,
-      'bitmapFont',
-      "",
-      30
-    );
-
-    this.totalTxt = this.scene.add.bitmapText(
+    /*==============================
+    スコア：ベーシック
+    ==============================*/
+    this.scoreLeftTxt = this.scene.add.bitmapText(
       30,
       110,
       'bitmapFont',
-      '',
+      'SCORE',
       30
-    );   
-    this.myScoreTxt = this.scene.add.bitmapText(
-      30,
+    );
+    this.scoreTxt = this.scene.add.bitmapText(
+      config.scene.game.config.width - 30,
       120,
       'bitmapFont',
       '',
+      42,{
+        align: 'right'
+      }
+    );
+    this.scoreTxt.setOrigin(1, 0);
+
+    /*==============================
+    スコア：コイン
+    ==============================*/
+    this.coinLeftTxt = this.scene.add.bitmapText(
+      30,
+      140,
+      'bitmapFont',
+      "COIN",
+      30,
+      {
+        align: 'right'
+      }
+    );
+    this.coinTxt = this.scene.add.bitmapText(
+      config.scene.game.config.width - 30,
+      150,
+      'bitmapFont',
+      "",
+      42
+    );
+    this.coinTxt.setOrigin(1, 0);
+
+    /*==============================
+    スコア：トータル
+    ==============================*/
+    this.totalLeftTxt = this.scene.add.bitmapText(
+      30,
+      170,
+      'bitmapFont',
+      'TOTAL',
       30
-    );     
+    );  
+
+    this.totalTxt = this.scene.add.bitmapText(
+      config.scene.game.config.width - 30,
+      180,
+      'bitmapFontYellow',
+      '',
+      42,
+      {
+        align: 'right'
+      }
+    );   
+    this.totalTxt.setOrigin(1, 0);
+    /*==============================
+    スコア：今までのと合算
+    ==============================*/
+    this.myScoreLeftTxt = this.scene.add.bitmapText(
+      30,
+      200,
+      'bitmapFont',
+      'MY SCORE',
+      30
+    );
+    this.myScoreTxt = this.scene.add.bitmapText(
+      config.scene.game.config.width - 30,
+      210,
+      'bitmapFont',
+      '',
+      42,
+      {
+        align: 'right'
+      }
+    );
+    this.myScoreTxt.setOrigin(1, 0);
 
     this.stageOverTxt.setOrigin(0.5,0.5);
     config.scene.physics.world.enable(this.stageOverTxt);
@@ -65,7 +120,7 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
 
     this.buttonTw = config.scene.add.sprite(
       config.scene.game.config.width/2,
-      200,
+      320,
       'btn_tw'
     );
     this.buttonTw.setScrollFactor(0);
@@ -76,8 +131,8 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
 
     this.buttonTitle = config.scene.add.sprite(
       config.scene.game.config.width/2,
-      260,
-      'title'
+      420,
+      'btn_title'
     );
     this.buttonTitle.setScrollFactor(0);
     this.buttonTitle.setOrigin(0.5,0.5);
@@ -90,9 +145,13 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
       this.stageOverTxt,
       this.buttonTw,
       this.buttonTitle,
+      this.scoreLeftTxt,
       this.scoreTxt,
+      this.coinLeftTxt,
       this.coinTxt,
+      this.totalLeftTxt,
       this.totalTxt,
+      this.myScoreLeftTxt,
       this.myScoreTxt
     ]);
     
@@ -108,7 +167,7 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
 
   scoreDisplay(){
     this.container.visible = true;
-    let getScore = this.scene.registry.list.score;
+    let getScore = Math.floor(this.scene.registry.list.score);
     let coinCount = this.scene.registry.list.coin;
     let COIN_POINT = 100;
     let cointScore = coinCount * COIN_POINT;
@@ -116,16 +175,19 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
     let myScore = totalScore + this.scene.MY_SCORE;
 
     this.scoreTxt.setText(
-      'SCORE:' + getScore
+      getScore
     );
+    this.coinLeftTxt.setText(
+      'COIN('+COIN_POINT+'pt)x'+coinCount
+    );  
     this.coinTxt.setText(
-      'COIN:' + coinCount + ' x' + COIN_POINT + ' = ' + cointScore
+      cointScore
     );    
     this.totalTxt.setText(
-      'TOTAL:' + totalScore
+      totalScore
     );  
     this.myScoreTxt.setText(
-      'MY SCORE:' + myScore
+      myScore
     );
 
     //トータルスコアの更新
