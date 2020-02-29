@@ -3,29 +3,12 @@ export default class CoinCount extends Phaser.Physics.Arcade.Sprite {
     super(config.scene, config.x, config.y, config.key);
     config.scene.physics.world.enable(this);
     config.scene.add.existing(this);
-    // config.scene.anims.create({
-    //   key: 'carAnime',
-    //   frames: config.scene.anims.generateFrameNumbers('car_anime', { start: 0, end: 1 }),
-    //   frameRate: 10,
-    //   repeat: -1
-    // });
 
     this.x = config.scene.game.config.width - 20;
     this.y = 20;
 
     this.animaFlg = false;
-    config.scene.anims.create({
-      key: 'coinGetAnimeS',
-      frames: config.scene.anims.generateFrameNumbers('coin_anime_s', { start: 0, end: 6 }),
-      frameRate: 6,
-      repeat: 1
-    });
-    config.scene.anims.create({
-      key: 'coinWaitAnimeS',
-      frames: config.scene.anims.generateFrameNumbers('coin_anime_s', { start: 0, end: 0 }),
-      frameRate: 10,
-      repeat: -1
-    });
+
     this.coinText = config.scene.add.bitmapText(
       config.scene.game.config.width - 26,
       28,
@@ -47,10 +30,6 @@ export default class CoinCount extends Phaser.Physics.Arcade.Sprite {
       }
     );
     this.coinText.setOrigin(1, 0);
-
-    // this.coinText.setText(
-    //   config.scene.registry.list.coin
-    // );
     this.anims.play('coinWaitAnimeS', true);
   }
   update(){

@@ -1,24 +1,43 @@
 import Car from '../sprites/Car';
+import Brake from '../sprites/Brake';
 import AttentionMark from '../sprites/AttentionMark';
 import Pylon from '../sprites/Crimp/Pylon';
 import Stone from '../sprites/Crimp/Stone';
 import Coin from '../sprites/item/Coin';
+
+import makeGameStart from '../helper/GameStart';
 import GameOver from '../helper/GameOver';
 
-import CoinCount from '../ui/CoinCount';
+import UIManager from '../ui/UIManager';
+
+import ConfigStage from '../helper/ConfigStage';
+import makeCollision from '../helper/Collisions';
 
 class GameScene extends Phaser.Scene {
   constructor(test) {
     super({
       key: 'GameScene'
     });
-    this.SCROLL_SPEED = 5;
     this.gameStartFlg = false;
     this.crimpTimerEvent;
     this.attentionBlockTimerEvent;
     this.MY_SCORE = nowMyScore;
+
+    this.SCROLL_SPEED = 5;
+    this.BASE_SPEED = 5;
+    this.MAX_SPEED = 15;
+    this.ADD_SPEED = 0.001;
+    this.CoinCount;
+    this.LEVEL = 1;
+    this.LANE_NUMBER = 1;
+    // this.laneSetedStone = 0;//ストーンを置いたレーン
   }
   create(){
+
+    /*==============================
+    ステージの設定周り
+    ==============================*/ 
+    this.STAGE_STATUS = ConfigStage(this);
 
     /*==============================
     背景生成
@@ -33,57 +52,9 @@ class GameScene extends Phaser.Scene {
     /*==============================
     UI
     ==============================*/     
-    this.speedText = this.add.text(
-      20,
-      40,
-      '0',
-      {
-        font: '18px Courier',
-        fill: '#FFFFFF'
-      }
-    );
-    this.speedText.depth = 100;
-
-    this.scoreText = this.add.text(
-      20,
-      20,
-      '0',
-      {
-        font: '18px Courier',
-        fill: '#FFFFFF'
-      }
-    );
-    this.scoreText.depth = 100;
-    /*==============================
-    UI コイン
-    ==============================*/     
-    this.CoinCount = new CoinCount({
+    this.UIManager = new UIManager({
       scene: this
-    });
-
-
-    /*==============================
-    UI レベル
-    ==============================*/
-    this.LEVEL = 1;  
-    this.levelText = this.add.text(
-      this.game.config.width - 10,
-      60,
-      '0',
-      {
-        font: '24px Courier',
-        fill: '#FFFFFF',
-        align: 'right'
-      }
-    );
-    this.levelText.setOrigin(1, 0);
-    this.levelText.depth = 100;
-    /*==============================
-    ゲームオーバーの生成
-    ==============================*/    
-    this.GameOver = new GameOver({
-      scene: this
-    });
+    });  
 
     /*==============================
     障害物グループ生成（パイロン）
@@ -115,13 +86,22 @@ class GameScene extends Phaser.Scene {
       this.CoinGroup.add(coin);    
     }
     /*==============================
+    ブレーキセリフの生成
+    ==============================*/    
+    this.Brake = new Brake({
+      scene: this,
+      key: 'brake',
+      x: 128,
+      y: this.game.config.height - 160,
+    });
+    /*==============================
     プレイヤー（車）の生成
     ==============================*/    
     this.Car = new Car({
       scene: this,
       key: 'car',
-      x: 64,
-      y: this.game.config.height - 60,
+      x: 128,
+      y: this.game.config.height - 120,
     });
     
     /*==============================
@@ -137,48 +117,13 @@ class GameScene extends Phaser.Scene {
       scene: this,
       x: 0,
       y: 200,
-      width: 37,
-      height: 200,
+      width: 64,
+      height: this.game.config.height,
       key: 'stone'
     });
     this.Stone.setVisible(false);
 
-    this.LANE_NUMBER = 1;
-
-    this.BASE_SPEED = 5;
-    this.MAX_SPEED = 15;
-    this.ADD_SPEED = 0.005;
-
-    this.STAGE_STATUS = [
-      {
-        LEVEL: 1,
-        SCORE: 0,
-        SPEED: this.BASE_SPEED,
-        DURATION: 1000,
-        DELAY: 1000
-      },
-      {
-        LEVEL: 2,
-        SCORE: 2000,
-        SPEED: (this.BASE_SPEED + this.MAX_SPEED) /4 * 2,
-        DURATION: 500,
-        DELAY: 500
-      },
-      {
-        LEVEL: 3,
-        SCORE: 4000,
-        SPEED: (this.BASE_SPEED + this.MAX_SPEED) /4 * 3,
-        DURATION: 400,
-        DELAY: 400
-      },
-      {
-        LEVEL: 4,
-        SCORE: 6000,
-        SPEED: this.MAX_SPEED,
-        DURATION: 300,
-        DELAY: 300
-      }
-    ];
+    
 
 
     /*==============================
@@ -196,12 +141,12 @@ class GameScene extends Phaser.Scene {
         if( pointer.x < this.game.config.width/2){
           this.keyDirection = "LEFT";
           if(this.Car.x >= 80){
-            this.Car.x -= 60;
+            this.Car.x -= 64;
           }
         }else{
           this.keyDirection = "RIGHT";
           if(this.Car.x <= 240){
-            this.Car.x += 60;
+            this.Car.x += 64;
           }
         }
       }
@@ -215,72 +160,41 @@ class GameScene extends Phaser.Scene {
         this.isTouched = false;
       }
     }, this);
+
     /*==============================
     当たり判定
     ==============================*/   
-    this.physics.add.overlap(this.Car,this.CrimpGroup,function(car,crimp){
-      car.hit(crimp);
-    });
-    this.physics.add.overlap(this.Car,this.CoinGroup,function(car,coin){
-      coin.hit();
-    });
-    this.physics.add.overlap(this.Car,this.Stone,function(car,stone){
-      car.hit(stone);
-    });
+    makeCollision(this);
+
+    /*==============================
+    ゲームスタート
+    ==============================*/   
+    makeGameStart(this); 
+
     /*==============================
     ゲームオーバー
     ==============================*/   
-    this.gameOverFlg = false;
-
-    this.stageNowText = this.add.bitmapText(
-      this.game.config.width/2 - 20,
-      100,
-      'bitmapFont',
-      'GAME START',
-      64
-    );
-    this.stageNowText.setOrigin(0.5,0.5);
-    this.stageNowText.alpha = 0;
-    var stageNumberTween = this.tweens.timeline({
-      targets: this.stageNowText,
-      ease: 'liner',
-      duration: 100,
-      tweens:[{
-        x: this.game.config.width/2,
-        alpha: 1,
-        duration: 300
-      },{
-        duration: 1000
-      },{
-        x: this.game.config.width/2 + 20,
-        alpha: 0,
-        duration: 300
-      }
-      ],
-      delay: 500,
-      repeat: 0,
-      completeDelay: 400,
-      callbackScope: this,
-      onComplete: function () {
-        this.gameStartFlg = true;
-        this.stageNowText.setActive(false);
-        this.stageNowText.setVisible(false);
-      }
-    });    
-
+    this.gameOverFlg = false;  
+    this.GameOver = new GameOver({
+      scene: this
+    });
   }
   update(time, delta) {
-
+    /*==============================
+    ゲームの状態のチェック
+    ==============================*/
     if(!this.gameStartFlg){
       return;
     }
-
     if(this.gameOverFlg){
       return;
     }
-    this.CoinCount.update();
-    //レーンのチェック
+
+    /*==============================
+    レーンのチェック
+    ==============================*/
     this.LANE_NUMBER = this.checkLane();
+
     /*==============================
     タイマー
     ==============================*/   
@@ -298,8 +212,8 @@ class GameScene extends Phaser.Scene {
     }
     if(!this.crimpTimerEvent){
       this.crimpTimerEvent = this.time.addEvent({
-        delay: 1000,
-        duration: 1000,
+        delay: 500,
+        duration: 500,
         startAt: 200,
         callback: function(){
           this.fromCrimpPool();
@@ -308,42 +222,55 @@ class GameScene extends Phaser.Scene {
         loop: true
       }); 
     }
-
+    /*==============================
+    レベルのチェック
+    ==============================*/
     this.changeLevel();
 
+    /*==============================
+    スピードの更新
+    ==============================*/    
     if(this.SCROLL_SPEED <= this.MAX_SPEED){
       this.SCROLL_SPEED += this.ADD_SPEED;
     }else{
       this.SCROLL_SPEED = this.MAX_SPEED;
     }
-
+    /*==============================
+    スコアの更新
+    ==============================*/   
     this.registry.list.score += this.SCROLL_SPEED;
 
-    this.levelText.setText(
-      'LEVEL :'+this.LEVEL
-    );
-    this.speedText.setText(
-      'SPEED :'+Math.floor(this.SCROLL_SPEED)
-    );
-    this.scoreText.setText(
-      'SCORE :'+Math.floor(this.registry.list.score)
-    );
-
+    /*==============================
+    背景のアニメーション
+    ==============================*/
     this.background1.tilePositionY -= this.SCROLL_SPEED;
 
+    /*==============================
+    障害物グループのアップデート
+    ==============================*/    
     this.CrimpGroup.children.entries.forEach(
       (sprite) => {
         sprite.update(time, delta);
       }
     );
+    /*==============================
+    コイングループのアップデート
+    ==============================*/   
     this.CoinGroup.children.entries.forEach(
       (sprite) => {
         sprite.update(time, delta);
       }
     );
+    /*==============================
+    ストーンのアップデート
+    ==============================*/
     if(this.Stone.active){
       this.Stone.update(time, delta);
     }
+    /*==============================
+    UI（コインのカウントなど）のアップデート
+    ==============================*/
+    this.UIManager.update(time, delta);
   }
 
   fromCrimpPool(object){
@@ -353,29 +280,43 @@ class GameScene extends Phaser.Scene {
     3 | アテンション＆ストーン
     */
     //1)パイロン.2)アイテムは50:50の確率で計算
-    let setGroupId = this.getRandomInt(1,2);
+    // for(var i = 0; i< 2; i++){
+      
+    // }
+    let setGroupId = this.getRandomInt(1,3);
     let displayObject;
-    if(setGroupId === 1){
+    if(setGroupId === 1 || setGroupId === 2){
       displayObject = this.CrimpGroup.get();
     }
-    if(setGroupId === 2){
+    if(setGroupId === 3){
       displayObject = this.CoinGroup.get();
     }
 
     if(displayObject){
       let randomLane = this.getRandomInt(1,4);
+
+      //ストーンがあるレーンには置かない
+      if(this.Stone.laneNumber === randomLane && this.Stone.laneNumber !== 0){
+        return;
+      }
+      displayObject.getFlg = false;
       displayObject.setActive(true);
       displayObject.setVisible(true);
-      displayObject.x = randomLane * 60;
+      displayObject.x = randomLane * 64;
       displayObject.y = 0;
       displayObject.laneNumber = randomLane;
+      if(setGroupId === 3){
+        displayObject.resetAnime();
+      }
     }
   }
+
   gameOver(){
     this.gameOverFlg = true;
     this.crimpTimerEvent.remove(false);
     this.anims.resumeAll();
     this.physics.world.resume();
+    this.Brake.show(this.Car.x,this.Car.y);
     let gameOverDelay = this.time.delayedCall(
       2000,
       function(){
@@ -401,7 +342,6 @@ class GameScene extends Phaser.Scene {
     this.STAGE_STATUS.forEach(
       (status) => {
         if(this.SCROLL_SPEED >= status.SPEED){
-          // this.SCROLL_SPEED = status.SPEED;
           afterLevel = status.LEVEL;
           afterDuration = status.DURATION;
           afterDelay = status.DELAY;
@@ -410,10 +350,19 @@ class GameScene extends Phaser.Scene {
     );
     if(afterLevel !== this.LEVEL){
       this.LEVEL = afterLevel;
-      this.levelText.setText(
-        'LEVEL :'+this.LEVEL
-      );
+      
       /*タイマーの更新*/
+      this.attentionBlockTimerEvent.remove(false);
+      this.attentionBlockTimerEvent = this.time.addEvent({
+        delay: afterDelay*2,
+        duration: afterDuration,
+        startAt: 0,
+        callback: function(){
+          this.attentionDisplay();
+        },
+        callbackScope: this,
+        loop: true
+      });  
       this.crimpTimerEvent.remove(false);
       this.crimpTimerEvent = this.time.addEvent({
         delay: afterDelay,
@@ -440,29 +389,43 @@ class GameScene extends Phaser.Scene {
     if(this.Stone.active){
       return;
     }
-    //3)ストーンは別で1/10確率で表示
+
+    //ストーンは別で1/10確率で表示 1が出たら！
     let setStoneId = this.getRandomInt(1,2);
     let setLane = this.getRandomInt(1,2);
-    let stoneObject;
+    let setStoneDispTimer = this.getRandomInt(1,4);
+    let STONE_TIMER_BASE = 1000;
+    let setStoneTImer = setStoneDispTimer * STONE_TIMER_BASE;
+
     if(setStoneId === 1){
       //マークの表示
       this.AttentionMark.y = this.game.config.height/2;
       this.AttentionMark.setVisible(true);
+      this.AttentionMark.tick();
       //ストーンの設置
       this.Stone.setVisible(true);
       if(setLane === 1){
-        this.AttentionMark.x = setLane * 60;
-        this.Stone.x = setLane * 60;
+        this.AttentionMark.x = setLane * 64;
+        this.Stone.x = setLane * 64;
       }
       if(setLane === 2){
-        this.AttentionMark.x = setLane * 120;
-        this.Stone.x = setLane * 120;
+        this.AttentionMark.x = setLane * 128;
+        this.Stone.x = setLane * 128;
       }
-      this.Stone.y = this.game.config.height/2 * -1 - this.LEVEL*this.game.config.height;
-      this.Stone.body.setSize(30,this.game.config.height * this.LEVEL)
-      this.Stone.height = this.game.config.height * this.LEVEL;
+      // this.laneSetedStone = setLane;//ストーンを置いたレーンにはパイロンとアイテムを置かない
+      this.Stone.laneNumber = setLane;
+
+      //差分を埋める用
+      this.Stone.StoneDiff.x = this.Stone.x;
+      this.Stone.StoneDiff.y = -64;
+      this.Stone.StoneDiff.setActive(false);
+      this.Stone.StoneDiff.setVisible(false);
+
+      this.Stone.tilePositionY = 0;
+      this.Stone.dispTimer = setStoneTImer;
+      this.Stone.y = this.game.config.height * -0.5;
       this.Stone.setActive(true);
-      this.Stone.active = true;      
+      this.Stone.active = true;   
     }
   }
 

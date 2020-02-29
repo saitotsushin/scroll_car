@@ -52,8 +52,6 @@ class TitleScene extends Phaser.Scene {
     );
     this.buttonStart.setOrigin(0.5,0.5);
     this.buttonStart.setInteractive();
-    console.log("this.buttonStart",this.buttonStart)
-    console.log("this.registry.list.playedFlg",this.registry.list.playedFlg)
     if(this.registry.list.playedFlg === true){
       this.buttonStart.alpha = 0.4;      
     }
