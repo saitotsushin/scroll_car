@@ -19,8 +19,6 @@ export default class Brake extends Phaser.Physics.Arcade.Sprite {
     if(!this.animeBrakeFlg){
       this.animeBrakeFlg = true;
 
-      console.log("show"+x+"/y-"+y)
-
       let posX = x;
       let posY = y;
   

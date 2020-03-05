@@ -190,11 +190,19 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
       myScore
     );
 
-    //トータルスコアの更新
-    // this.scene.registry.list.myScore = myScore;
-    nowMyScore = myScore
-    //一日一回のフラグ更新
-    // this.scene.registry.list.playedFlg = true;
-    playedFlg = true;
+    this.scene.gameOverFlg = false;
+    this.scene.gameStartFlg = false;
+
+    if(this.scene.registry.list.gameMode === "PLAY"){
+      //トータルスコアの更新
+      nowMyScore = myScore
+      //一日一回のフラグ更新
+      playedFlg = true;
+    }
+    if(this.scene.registry.list.gameMode === "TUTORIAL"){
+      this.myScoreTxt.setVisible(false);
+      this.buttonTw.setVisible(false);
+      this.buttonTitle.y = 320;
+    }
   }
 }

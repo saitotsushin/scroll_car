@@ -14,6 +14,7 @@ export default class Stone extends Phaser.GameObjects.TileSprite {
     this.y = config.y;
     this.width = config.width;
     this.height = config.height;
+
     config.scene.physics.world.enable(this);
     config.scene.add.existing(this);
 
@@ -26,23 +27,14 @@ export default class Stone extends Phaser.GameObjects.TileSprite {
 
     this.dispTimer = 0;
 
-    this.StoneDiff = config.scene.add.sprite(
-      40,
-      40,
-      'stone'
-    );
-    this.StoneDiff.setActive(false);
-    this.StoneDiff.setVisible(false);
-    this.StoneDiff.depth = 20;
-    config.scene.physics.world.enable(this.StoneDiff);
-    config.scene.add.existing(this.StoneDiff);
-    // this.y = this.game.config.height/2 * -1 - this.LEVEL*this.game.config.height;
-    // this.body.setSize(64,this.game.config.height * this.LEVEL*2)
-    // this.body.height = this.game.config.height * this.LEVEL*2;
-    // this.depth = 1;
-
     this.SCROLL_SPEED = config.scene.SCROLL_SPEED;
     this.diffHeight = 0;
+
+    this.scrollEnd = false;
+
+    this.STONE_HEIGHT = config.scene.game.config.height + 64 - (config.scene.game.config.height % 64);
+    this.STONE_DIFF = 64 - (config.scene.game.config.height % 64);
+
   }
   update(time, delta) {
 
@@ -50,11 +42,9 @@ export default class Stone extends Phaser.GameObjects.TileSprite {
       return;
     }
 
-    if(this.y >= this.scene.game.config.height*1.5){
+    if(this.y >= this.scene.game.config.height + this.height){
       this.setActive(false);
       this.setVisible(false);
-      this.StoneDiff.setActive(false);
-      this.StoneDiff.setVisible(false);
       this.diffHeight = 0;
       this.tilePositionY = 0;
       this.laneNumber = 0;
@@ -64,28 +54,32 @@ export default class Stone extends Phaser.GameObjects.TileSprite {
     if(this.active){
       this.dispTimer -= delta;
       if(this.dispTimer <= 0){
-        // this.StoneDiff.x = this.x;
         this.scene.AttentionMark.setVisible(false);
-        if(this.diffHeight === 0){
-          this.diffHeight = this.tilePositionY % 64 / 2;
-          if(this.diffHeight === 0){
-          }else{
-            this.diffHeight *= -1;
-            this.StoneDiff.setActive(true);
-            this.StoneDiff.setVisible(true);
-          }
-          console.log("this.diffHeight",this.diffHeight)
-          this.StoneDiff.y = this.diffHeight;
+
+        if(!this.scrollEnd){
+          this.diffHeight = 64 - (this.tilePositionY % 64 * -1);
+
+          // this.tilePositionY += this.diffHeight;
+          // this.height = this.height + this.diffHeight;  
+          this.scrollEnd = true;
         }
-        this.StoneDiff.y += this.scene.SCROLL_SPEED;
-        this.y += this.scene.SCROLL_SPEED;
+        if(this.diffHeight >= 0){
+          this.tilePositionY -= this.scene.SCROLL_SPEED;
+          this.diffHeight -= this.scene.SCROLL_SPEED;
+          // this.y += this.scene.SCROLL_SPEED;
+          // this.height += this.scene.SCROLL_SPEED;  
+        }else{
+          this.y += this.scene.SCROLL_SPEED;
+        }
         return;
       }
-      if(this.y <= this.scene.game.config.height/2){
+      
+      if(this.y <= this.STONE_HEIGHT/2 - this.STONE_DIFF){
         this.y += this.scene.SCROLL_SPEED;
       }else{
         this.tilePositionY -= this.scene.SCROLL_SPEED;
       }
+      // this.tilePositionY -= this.scene.SCROLL_SPEED;
     }
 
   }

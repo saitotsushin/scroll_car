@@ -19,6 +19,7 @@ class TitleScene extends Phaser.Scene {
     this.registry.set('coin', 0);
     this.registry.set('myScore', nowMyScore);
     this.registry.set('playedFlg', playedFlg);
+    this.registry.set('gameMode', '');
 
     /*==============================
     背景生成
@@ -59,6 +60,7 @@ class TitleScene extends Phaser.Scene {
       if(this.registry.list.playedFlg === true){
         return;  
       }
+      this.registry.set('gameMode', 'PLAY');
       this.startGame();
     });  
     /*==============================
@@ -73,6 +75,7 @@ class TitleScene extends Phaser.Scene {
     this.buttonTutorial.setInteractive();
 
     this.buttonTutorial.on('pointerdown', () => {
+      this.registry.set('gameMode', 'TUTORIAL');
       this.startGame();
     });  
 
@@ -92,18 +95,6 @@ class TitleScene extends Phaser.Scene {
       64
     );
     this.myScoreText.setOrigin(1, 0);
-
-    // this.myScoreText = this.add.text(
-    //   20,
-    //   240,
-    //   nowMyScore,
-    //   {
-    //     font: '18px Courier',
-    //     fill: '#FFFFFF'
-    //   }
-    // );
-
-    // this.top_anime = this.add.sprite(160, 160, 'top_anime');
 
     this.TopAnime = new TopAnime({
       scene: this,

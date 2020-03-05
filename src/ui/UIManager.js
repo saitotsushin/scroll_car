@@ -83,6 +83,23 @@ export default class UIManager{
     );
     this.levelText.setOrigin(1, 0);
     this.levelText.depth = 100;      
+
+    /*==============================
+    キーパッド
+    ==============================*/    
+    this.keyLeft = config.scene.add.sprite(
+      config.scene.game.config.width/4,
+      config.scene.game.config.height - 40
+    );
+    this.keyLeft.depth = 100;
+    this.keyLeft.anims.play('keyLeftUp', true);  
+
+    this.keyRight = config.scene.add.sprite(
+      config.scene.game.config.width/4*3,
+      config.scene.game.config.height - 40
+    );
+    this.keyRight.depth = 100;
+    this.keyRight.anims.play('keyRightUp', true);  
   }
   update(keys, time, delta) {
     this.levelText.setText(
