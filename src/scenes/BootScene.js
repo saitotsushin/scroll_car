@@ -44,18 +44,12 @@ class BootScene extends Phaser.Scene {
       this.progress.destroy();
       this.scene.start('TitleScene');
     });
-    /*bitmap
-    midori_box
-    https://www.pixiv.net/artworks/56487227
-     */
 
     this.load.image('car', 'assets/images/car.png');
     this.load.image('coin', 'assets/images/item/coin.png');
     this.load.image('pylon', 'assets/images/pylon.png');
     this.load.image('stage', 'assets/images/stage.jpg');
     this.load.image('title', 'assets/images/title.png');
-
-    this.load.image('rect_mask_64x64', 'assets/images/rect_mask_64x64.png');
 
     this.load.image('base_score', 'assets/images/base_score.png');
     this.load.image('attention', 'assets/images/attention.png');

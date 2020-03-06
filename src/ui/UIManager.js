@@ -2,10 +2,6 @@ import CoinCount from './CoinCount';
 
 export default class UIManager{
   constructor(config) {
-    // super(
-    //   config.scene
-    // );
-
     this.scene = config.scene;
 
 
@@ -70,13 +66,12 @@ export default class UIManager{
     /*==============================
     UI レベル
     ==============================*/
-    // this.LEVEL = 1;  
     this.levelText = config.scene.add.text(
       config.scene.game.config.width - 10,
-      60,
+      68,
       '0',
       {
-        font: '24px Courier',
+        font: '18px Courier',
         fill: '#FFFFFF',
         align: 'right'
       }

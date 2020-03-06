@@ -401,6 +401,10 @@ class GameScene extends Phaser.Scene {
   }
   titleGame(){
     this.scene.start('TitleScene');
+    //スコア、スピードのリセット
+    this.SCROLL_SPEED = this.BASE_SPEED;
+    this.registry.set('score', 0);
+    this.registry.set('coin', 0);
   }
   //
   changeLevel(){

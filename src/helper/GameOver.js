@@ -200,6 +200,7 @@ export default class GameOver extends Phaser.Physics.Arcade.Sprite{
       playedFlg = true;
     }
     if(this.scene.registry.list.gameMode === "TUTORIAL"){
+      this.myScoreLeftTxt.setVisible(false);
       this.myScoreTxt.setVisible(false);
       this.buttonTw.setVisible(false);
       this.buttonTitle.y = 320;

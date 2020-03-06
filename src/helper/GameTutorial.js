@@ -43,10 +43,7 @@ export function makeGameTutorial(scene){
     completeDelay: 0,
     callbackScope: scene,
     onComplete: function () {
-      showPopup1(scene)
-      // scene.gameStartFlg = true;
-      // scene.stageNowText.setActive(false);
-      // scene.stageNowText.setVisible(false);
+      showPopup1(scene);
     }
   }); 
   overlapArea = scene.add.graphics(
@@ -57,7 +54,8 @@ export function makeGameTutorial(scene){
   rect = new Phaser.Geom.Rectangle(0, 0, scene.game.config.width, scene.game.config.height);
   overlapArea.fillRectShape(rect);
   overlapArea.alpha = 0.75;
-  overlapArea.setScrollFactor(0);   
+  overlapArea.setScrollFactor(0);
+  overlapArea.depth = 100;
 }
 export function showPopup1(scene){
   container1 = scene.add.container(0, 0);
@@ -81,6 +79,7 @@ export function showPopup1(scene){
 
   container1.y = 140;
   container1.alpha = 0;
+  container1.depth = 101;
 
   let tween = scene.tweens.add({
     targets: container1,
@@ -95,7 +94,6 @@ export function showPopup1(scene){
 }
 
 export function showPopup2(scene){
-  console.log("showPopup2")
   container2 = scene.add.container(0, 0);
   let popup_2 = scene.add.sprite(
     scene.game.config.width/2,
@@ -117,6 +115,7 @@ export function showPopup2(scene){
 
   container2.y = 140;
   container2.alpha = 0;
+  container2.depth = 101;
 
   let tween = scene.tweens.add({
     targets: container2,
@@ -173,4 +172,5 @@ export function showPopup3(scene){
   }); 
   container3.add(popup_3);
   container3.add(btn_start_tutorial);
+  container3.depth = 101;
 }
